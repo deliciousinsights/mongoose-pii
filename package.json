@@ -1,0 +1,23 @@
+{
+  "name": "security",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "npm test -- --watch"
+  },
+  "keywords": [],
+  "author": "Christophe Porteneuve <christophe@delicious-insights.com> (https://delicious-insights.com/)",
+  "license": "MIT",
+  "jest": {
+    "notify": true
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mongoose": "^5.2.16"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
+  }
+}
