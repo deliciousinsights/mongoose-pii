@@ -1,4 +1,5 @@
 const { cipher, decipher } = require('./util/ciphers')
+const { checkPassword, hashPassword } = require('./util/passwords')
 
 const settings = new WeakMap()
 
@@ -18,30 +19,40 @@ const QUERY_METHODS = [
   'updateMany',
 ]
 
-function markFieldsAsPII(schema, { fields, key } = {}) {
-  if (typeof fields === 'string') {
-    fields = fields.trim().split(/\s+/)
-  }
-  fields = [...new Set(fields || [])].sort()
+function markFieldsAsPII(schema, { fields, key, passwordFields } = {}) {
+  fields = normalizeFieldList('fields', fields)
+  passwordFields = normalizeFieldList('passwordFields', passwordFields)
 
-  if (fields.length === 0) {
-    throw new Error('Missing required `fields` option for markFieldsAsPII')
-  }
-
-  if (!key) {
-    throw new Error('Missing required `key` option for markFieldsAsPII')
+  if (fields.length === 0 && passwordFields.length === 0) {
+    throw new Error(
+      'Using markFieldsAsPII assumes at least one of `fields` or `passwordFields`'
+    )
   }
 
-  settings[schema] = { fields, key }
+  if (fields.length > 0 && !key) {
+    throw new Error(
+      'Missing required `key` option for ciphering `fields` in markFieldsAsPII'
+    )
+  }
 
-  schema.pre('insertMany', cipherDocumentFields)
-  schema.pre('save', cipherDocumentFields)
-  schema.post('insertMany', decipherDocumentFields)
-  schema.post('save', decipherDocumentFields)
-  schema.post('init', decipherDocumentFields)
+  settings[schema] = { fields, key, passwordFields }
 
-  for (const method of QUERY_METHODS) {
-    schema.pre(method, cipherQueryFields)
+  if (fields.length > 0) {
+    schema.pre('insertMany', cipherDocumentFields)
+    schema.pre('save', cipherDocumentFields)
+    schema.post('insertMany', decipherDocumentFields)
+    schema.post('save', decipherDocumentFields)
+    schema.post('init', decipherDocumentFields)
+
+    for (const method of QUERY_METHODS) {
+      schema.pre(method, cipherQueryFields)
+    }
+  }
+
+  if (passwordFields.length > 0) {
+    schema.pre('insertMany', hashDocumentPasswords)
+    schema.pre('save', hashDocumentPasswords)
+    schema.statics.authenticate = authenticate
   }
 }
 
@@ -51,19 +62,13 @@ function markFieldsAsPII(schema, { fields, key } = {}) {
 // Ciphers document fields pre-insert and pre-save, so they're stored
 // ciphered in the database.
 function cipherDocumentFields(next, docs) {
-  const { fields, key } = settings[this.schema] || {}
-  if (!fields) {
-    return next()
-  }
+  const { fields, key } = settings[this.schema]
 
   // If we're on `Model.insertMany`, `this` is a Model and `docs` is an Array.
   // Otherwise we're on `Document#save/Model.create`, `docs` is missing and
   // `this` is a Document.
   if (!Array.isArray(docs)) {
     docs = [this]
-  }
-  if (docs.length === 0) {
-    return
   }
 
   // Just in case we have the same original descriptor object
@@ -89,10 +94,7 @@ function cipherDocumentFields(next, docs) {
 // at first save through the `cipherDocumentFields` hook above.
 function cipherQueryFields(next) {
   // this is the Query -- we're on finder methods
-  const { fields, key } = settings[this.schema] || {}
-  if (!fields) {
-    return next()
-  }
+  const { fields, key } = settings[this.schema]
 
   const query = this.getQuery()
   processObject(query, { fields, key, mode: 'cipher' })
@@ -113,16 +115,68 @@ function decipherDocumentFields(docs) {
   // If we're on `Model.insertMany`, `this` is a Model and `docs` is an Array.
   // Otherwise we're on `Document#save/Model.create`, `docs` is a single
   // Document and is `this` as well.
-  const { fields, key } = settings[this.schema] || {}
-  if (!fields) {
-    return next()
-  }
+  const { fields, key } = settings[this.schema]
 
   if (!Array.isArray(docs)) {
     docs = [docs]
   }
 
   processDocs(docs, { fields, key, mode: 'decipher' })
+}
+
+// Hashes document password fields pre-insert and pre-save,
+// so they're stored hashed in the database.
+function hashDocumentPasswords(next, docs) {
+  const { passwordFields } = settings[this.schema]
+
+  // If we're on `Model.insertMany`, `this` is a Model and `docs` is an Array.
+  // Otherwise we're on `Document#save/Model.create`, `docs` is missing and
+  // `this` is a Document.
+  if (!Array.isArray(docs)) {
+    docs = [this]
+  }
+
+  // Just in case we have the same original descriptor object
+  // multiple times: only cipher once per instance!
+  docs = [...new Set(docs)]
+
+  processDocs(docs, { fields: passwordFields, mode: 'hash' })
+  next()
+}
+
+// Schema static methods
+// ---------------------
+
+// A static method added to schemas that define password fields.
+// Returns documents that match the query fields (that are not
+// password fields) and check out on *all* provided password
+// fields.  It is expected that password field values be passed
+// as clear text; there will usually be just one password field,
+// and often just one query field (e-mail or other identifier),
+// but this allows any number of both query and password fields
+// for matching.
+async function authenticate(fields) {
+  const { passwordFields } = settings[this.schema]
+
+  const { query, passwords } = splitAuthenticationFields({
+    fields,
+    passwordFields,
+  })
+
+  const result = []
+  for (const doc of await this.find(query)) {
+    const passwordPairs = walkDocumentPasswordFields(doc, passwords)
+    const allPasswordsChecks = await Promise.all(
+      passwordPairs.map(([clearText, hashed]) =>
+        checkPassword(clearText, hashed)
+      )
+    )
+    if (allPasswordsChecks.every((match) => match)) {
+      result.push(doc)
+    }
+  }
+
+  return result
 }
 
 // Internal helper functions
@@ -142,6 +196,31 @@ function cipherValue(key, value) {
     value = String(value)
   }
   return cipher(key, value, { deriveIV: true })
+}
+
+// Tiny internal helper to escape a text to be inserted in a regexp.
+function escapeRegexp(text) {
+  return text.replace(/[\](){}.?+*]/g, '\\$&')
+}
+
+const REGEX_BCRYPT_HASH = /^\$2a\$\d{2}\$[\w./]{53}$/
+
+// Hashes a password value… unless it's a hash already!
+function hashValue(value) {
+  return REGEX_BCRYPT_HASH.test(value)
+    ? value
+    : hashPassword(value, { sync: true })
+}
+
+// Simple field-list option normalization.  This way fields can be passed as
+// a whitespace- or comma-separated string, or as an Array.
+function normalizeFieldList(name, value) {
+  if (typeof value === 'string') {
+    value = value.trim().split(/[\s,]+/)
+  }
+  value = [...new Set(value || [])].sort()
+
+  return value
 }
 
 // A quick helper to iterate over a series of documents for (de)ciphering.
@@ -165,7 +244,7 @@ function processDocs(docs, { fields, key, mode }) {
 // @option key (String|Buffer) The ciphering key.
 // @option isDocument (Boolean) Whether to traverse `obj` as a query/update object
 //                    (false) or as a Document (true).
-// @option mode ('cipher'|'decipher') Whether to cipher or decipher values.
+// @option mode ('cipher'|'decipher'|'hash') Whether to cipher, decipher or hash values.
 // @option prefix (String|null) A path prefix for the current level of recursive
 //                object traversal.  Top-level calls have it `null`, deeper levels
 //                use the caller’s current path context.
@@ -173,6 +252,10 @@ function processObject(
   obj,
   { fields, key, isDocument = false, mode, prefix = null }
 ) {
+  if (mode !== 'cipher' && mode !== 'decipher' && mode !== 'hash') {
+    throw new Error(`Unknown processObject mode: ${mode}`)
+  }
+
   // Define what object keys to iterate over, depending on whether we’re
   // processing a Document or query/update object.
   const keyList = produceKeyList(obj, { fields, isDocument, prefix })
@@ -202,8 +285,11 @@ function processObject(
       if (fieldMatches) {
         if (mode === 'decipher') {
           obj[objKey] = decipher(key, value)
-        } else {
+        } else if (mode === 'cipher') {
           obj[objKey] = cipherValue(key, value)
+        } else {
+          // Has to be `hash`, invalid modes filtered earlier
+          obj[objKey] = hashValue(value)
         }
       }
     }
@@ -247,11 +333,90 @@ function produceKeyList(obj, { fields, isDocument, prefix }) {
   return [...new Set(currentLevelFields)]
 }
 
-function escapeRegexp(text) {
-  return text.replace(/[\](){}.?+*]/g, '\\$&')
+// Partitions a single descriptor `fields` into a query on the one hand
+// (fields that do not match `passwordFields` paths) and passwords on the
+// other hands (fields that do match). We need this in `authenticate()` in
+// order to first filter by query, then build a list of secure password
+// comparisons on the resulting docs, as hashes are intentionally unstable
+// (they vary from one hash to the other for the same cleartext), so we
+// can't just query on a hash we'd get this time around.
+//
+// @see `authenticate()`
+function splitAuthenticationFields({
+  fields,
+  passwordFields,
+  query = {},
+  passwords = {},
+  prefix = null,
+}) {
+  for (const [field, value] of Object.entries(fields)) {
+    if (typeof value === 'object') {
+      prefix = prefix ? `${prefix}.${field}` : field
+      splitAuthenticationFields({
+        fields: value,
+        passwordFields,
+        query,
+        passwords,
+        prefix,
+      })
+    } else {
+      const fieldPath = prefix ? `${prefix}.${field}` : field
+      const recipient = passwordFields.includes(fieldPath) ? passwords : query
+      updateObject(recipient, fieldPath, value)
+    }
+  }
+
+  if (prefix == null && Object.keys(passwords).length === 0) {
+    const candidates = [...passwordFields].sort().join(', ')
+    throw new Error(
+      `No password field (${candidates}) found in \`authenticate\` call`
+    )
+  }
+
+  return { query, passwords }
+}
+
+// Updates a recipient object `obj` so the field at path `path` (which
+// potentially describes a nested field using dot separators) exists in
+// it with value `value`.  Missing intermediary object properties are
+// created on-the-fly.  Used to populate query/password field descriptors
+// in `splitAuthenticationFields()` above.
+//
+// @see `splitAuthenticationFields()`.
+function updateObject(obj, path, value) {
+  const segments = path.split('.')
+  let node
+  while ((node = segments.shift())) {
+    obj[node] = segments.length > 0 ? obj[node] || {} : value
+    obj = obj[node]
+  }
+}
+
+// Produces a list of cleartext/hashed password value pairs, so a promise list
+// of secure comparisons can be done based on it.  This recursively walks the
+// potentially-nested password field/cleartext descriptor (`passwords`), matching
+// the traversal on document fields.  If the document misses some of the relevant
+// fields, it will yield empty-string hashes for these, ensuring comparison failure.
+//
+// @see `authenticate()`.
+function walkDocumentPasswordFields(doc = {}, passwords, result = []) {
+  for (const [field, value] of Object.entries(passwords)) {
+    if (typeof value === 'object') {
+      walkDocumentPasswordFields(doc[field], value, result)
+    } else {
+      result.push([value, doc[field] || ''])
+    }
+  }
+  return result
 }
 
 module.exports = {
-  tests: { cipherValue, processObject },
+  tests: {
+    cipherValue,
+    processObject,
+    splitAuthenticationFields,
+    updateObject,
+    walkDocumentPasswordFields,
+  },
   markFieldsAsPII,
 }

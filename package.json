@@ -18,7 +18,8 @@
   "author": "Christophe Porteneuve <christophe@delicious-insights.com> (https://delicious-insights.com/)",
   "license": "MIT",
   "jest": {
-    "notify": true
+    "notify": true,
+    "testEnvironment": "node"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3"
