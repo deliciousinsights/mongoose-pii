@@ -2,6 +2,19 @@
 
 FIXME:Badges
 
+[![npm version](https://badge.fury.io/js/mongoose-pii.svg)](https://badge.fury.io/js/mongoose-pii)
+![Build Travis](https://img.shields.io/travis/deliciousinsights/mongoose-pii.svg)
+![État des dépendances](https://img.shields.io/david/deliciousinsights/mongoose-pii.svg)
+![Coding style is StandardJS-based](https://img.shields.io/badge/style-standard-brightgreen.svg)
+
+![License MIT](https://img.shields.io/github/license/deliciousinsights/mongoose-pii.svg)
+[![Code of Conduct is Contributor Covenant](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-brightgreen.svg)](http://contributor-covenant.org/version/1/4/)
+
+<!--
+![Code coverage](https://img.shields.io/codecov/c/github/deliciousinsights/mongoose-pii.svg)
+
+-->
+
 Best practices for data storage dictate that:
 
 1. **Passwords should be securely hashed**; the typical state of the art right now being BCrypt with a securely-random IV and 10+ rounds (e.g. 2<sup>10</sup>+ iterations) in production.
