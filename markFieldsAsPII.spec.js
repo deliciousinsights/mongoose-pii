@@ -567,8 +567,8 @@ describe('Helper functions', () => {
       expect(cipherValue(key, 42)).toEqual(
         'Ocp86ezGn2lr99ILsj3RUgDAN6Jv5s8/5L00TeTW6Zmg=='
       )
-      expect(cipherValue(key, new Date('2018-09-21T10:33:50Z'))).toEqual(
-        '0jnFzuxuTv5lUbXF7cEyZAZwGFkI0ksYPnsc/95+kSuIUHzP6VaLAmFaHqfLFnqa402SdL0LAE93jiZn7OMW9L'
+      expect(cipherValue(key, /foobar/)).toEqual(
+        'KS13lM9qZVEPZ9eVFTUisQXbLWlfJ394d0C+WgbYMe3w=='
       )
     })
 
