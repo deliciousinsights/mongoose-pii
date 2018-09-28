@@ -16,6 +16,7 @@ describe('markFieldsAsPII plugin', () => {
     connection = await mongoose.createConnection(url, {
       autoReconnect: true,
       connectTimeoutMS: 1000,
+      loggerLevel: 'info',
       reconnectInterval: 100,
       reconnectTries: Number.MAX_VALUE,
       useNewUrlParser: true,
@@ -216,7 +217,7 @@ describe('markFieldsAsPII plugin', () => {
       })
     })
 
-    it('should cipher queries for finds', async () => {
+    it.only('should cipher queries for finds', async () => {
       const {
         ops: [doc],
       } = await userCollection.insertOne({
