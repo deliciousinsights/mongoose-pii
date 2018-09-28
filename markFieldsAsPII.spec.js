@@ -478,19 +478,24 @@ describe('markFieldsAsPII plugin', () => {
         { email: 'query@example.net', password: 'query' },
       ])
 
-      expect(await User.authenticate({ password: 'query' })).toHaveLength(2)
+      expect(await User.authenticate({ password: 'query' })).toMatchObject(
+        users[0].toJSON()
+      )
+      expect(
+        await User.authenticate({ password: 'query' }, { single: false })
+      ).toHaveLength(2)
       expect(
         await User.authenticate({
           email: 'query@example.com',
           password: 'query',
         })
-      ).toHaveLength(1)
+      ).toMatchObject(users[0].toJSON())
       expect(
         await User.authenticate({
           email: 'query@example.org',
           password: 'query',
         })
-      ).toHaveLength(0)
+      ).toBeNull()
     })
 
     it('should be able to authenticate across multiple password fields', async () => {
@@ -504,7 +509,7 @@ describe('markFieldsAsPII plugin', () => {
           password: 'toplevel',
           a: { b: { secret: 'yo' } },
         })
-      ).toHaveLength(1)
+      ).toMatchObject(users[1].toJSON())
     })
   })
 
@@ -536,7 +541,7 @@ describe('markFieldsAsPII plugin', () => {
         email: 'foo@bar.com',
         password: 'foobar',
       })
-      expect(users).toMatchObject([user.toJSON()])
+      expect(users).toMatchObject(user.toJSON())
     })
   })
 })

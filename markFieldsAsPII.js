@@ -155,7 +155,15 @@ function hashDocumentPasswords(next, docs) {
 // and often just one query field (e-mail or other identifier),
 // but this allows any number of both query and password fields
 // for matching.
-async function authenticate(fields) {
+//
+// @param `fields` a single descriptor that can mix query fields
+//        (that will be ciphered if necessary) and password
+//        fields (that will be securely compared).
+// @option `single` if true (default), the method will either
+//         return the first matching document, or `null`. If
+//         false, it will always return an array of matching
+//         documents, potentially empty.
+async function authenticate(fields, { single = true } = {}) {
   const { passwordFields } = settings[this.schema]
 
   const { query, passwords } = splitAuthenticationFields({
@@ -172,11 +180,15 @@ async function authenticate(fields) {
       )
     )
     if (allPasswordsChecks.every((match) => match)) {
+      if (single) {
+        return doc
+      }
+
       result.push(doc)
     }
   }
 
-  return result
+  return single ? null : result
 }
 
 // Internal helper functions
