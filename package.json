@@ -1,7 +1,17 @@
 {
-  "name": "security",
+  "name": "mongoose-pii",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Mongoose plugin that lets you transparently cipher stored PII and use securely-hashed passwords.  Helps with security best practices for data storage.",
+  "keywords": [
+    "mongodb",
+    "mongoose",
+    "security",
+    "plugin",
+    "pii",
+    "password",
+    "passwords",
+    "bcrypt"
+  ],
   "main": "index.js",
   "engines": {
     "node": ">= 7.6",
@@ -14,8 +24,18 @@
     "test": "npx --node-arg --no-deprecation jest",
     "test:watch": "npm test -- --watch"
   },
-  "keywords": [],
+  "directories": {
+    "example": "examples"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deliciousinsights/mongoose-pii.git"
+  },
+  "bugs": {
+    "url": "https://github.com/deliciousinsights/mongoose-pii/issues"
+  },
   "author": "Christophe Porteneuve <christophe@delicious-insights.com> (https://delicious-insights.com/)",
+  "homepage": "https://github.com/deliciousinsights/mongoose-pii#readme",
   "license": "MIT",
   "jest": {
     "notify": true,
@@ -25,7 +45,7 @@
     "bcryptjs": "^2.4.3"
   },
   "peerDependencies": {
-    "mongoose": "^5.2.16"
+    "mongoose": ">= 4"
   },
   "devDependencies": {
     "jest": "^23.6.0",
