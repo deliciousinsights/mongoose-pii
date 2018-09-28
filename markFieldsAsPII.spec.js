@@ -228,27 +228,27 @@ describe('markFieldsAsPII plugin', () => {
         role: 'guest',
       })
 
-      console.log('INSERTED ITEM:', doc)
-      console.log(
-        'DECIPHERED:',
-        require('./util/ciphers').decipher(
-          '126d8cf92d95941e9907b0d9913ce00e',
-          doc.email
-        )
-      )
-
-      for (const result of await Promise.all([
-        User.find({ _id: doc._id, email: 'foo@bar.com', role: 'guest' }),
-        User.findOne({ _id: doc._id, email: 'foo@bar.com', role: 'guest' }),
-        User.findOneAndDelete({
+      // We serialize this to avoid deletion happening before another find
+      // completes (due to the parallel execution of `Promise.all`), which
+      // would cause random failures as we've routinely seen on Travis :-/
+      const results = [
+        ...(await User.find({
+          _id: doc._id,
+          email: 'foo@bar.com',
+          role: 'guest',
+        })),
+        await User.findOne({
           _id: doc._id,
           email: 'foo@bar.com',
           role: 'guest',
         }),
-      ])) {
-        const user = Array.isArray(result) ? result[0] : result
-        console.log('result:', result)
-        console.log('user:', user)
+        await User.findOneAndDelete({
+          _id: doc._id,
+          email: 'foo@bar.com',
+          role: 'guest',
+        }),
+      ]
+      for (const user of results) {
         expect(user).toMatchObject({
           email: 'foo@bar.com',
           firstName: 'John',
