@@ -1,18 +1,13 @@
 # Mongoose PII Plugin
 
-[![npm version](https://badge.fury.io/js/mongoose-pii.svg)](https://badge.fury.io/js/mongoose-pii)
-![Build Travis](https://img.shields.io/travis/deliciousinsights/mongoose-pii.svg)
+[![npm version](https://badge.fury.io/js/mongoose-pii.svg)](https://npmjs.com/package/mongoose-pii)
+[![Build Travis](https://img.shields.io/travis/deliciousinsights/mongoose-pii.svg)](https://travis-ci.org/deliciousinsights/mongoose-pii)
 ![État des dépendances](https://img.shields.io/david/deliciousinsights/mongoose-pii.svg)
 [![Greenkeeper badge](https://badges.greenkeeper.io/deliciousinsights/mongoose-pii.svg)](https://greenkeeper.io/)
-![Coding style is StandardJS-based](https://img.shields.io/badge/style-standard-brightgreen.svg)
+[![Coding style is StandardJS-based](https://img.shields.io/badge/style-standard-brightgreen.svg)](https://standardjs.com/)
 
-![License MIT](https://img.shields.io/github/license/deliciousinsights/mongoose-pii.svg)
+[![License MIT](https://img.shields.io/github/license/deliciousinsights/mongoose-pii.svg)](https://en.wikipedia.org/wiki/MIT_License)
 [![Code of Conduct is Contributor Covenant](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-brightgreen.svg)](http://contributor-covenant.org/version/1/4/)
-
-<!--
-![Code coverage](https://img.shields.io/codecov/c/github/deliciousinsights/mongoose-pii.svg)
-
--->
 
 Best practices for data storage dictate that:
 
