@@ -1,7 +1,5 @@
 # Mongoose PII Plugin
 
-FIXME:Badges
-
 [![npm version](https://badge.fury.io/js/mongoose-pii.svg)](https://badge.fury.io/js/mongoose-pii)
 ![Build Travis](https://img.shields.io/travis/deliciousinsights/mongoose-pii.svg)
 ![État des dépendances](https://img.shields.io/david/deliciousinsights/mongoose-pii.svg)
