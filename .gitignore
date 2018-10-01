@@ -1,2 +1,3 @@
-node_modules
+cc-test-reporter
 coverage
+node_modules

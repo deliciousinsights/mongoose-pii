@@ -38,6 +38,16 @@
   "homepage": "https://github.com/deliciousinsights/mongoose-pii#readme",
   "license": "MIT",
   "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "<rootDir>/*.js",
+      "<rootDir>/util/*.js"
+    ],
+    "coverageReporters": [
+      "lcov",
+      "text",
+      "html"
+    ],
     "notify": true,
     "testEnvironment": "node"
   },

@@ -3,14 +3,12 @@
 [![npm version](https://badge.fury.io/js/mongoose-pii.svg)](https://npmjs.com/package/mongoose-pii)
 [![MIT license](https://img.shields.io/github/license/deliciousinsights/mongoose-pii.svg)](https://en.wikipedia.org/wiki/MIT_License)
 [![Travis build](https://img.shields.io/travis/deliciousinsights/mongoose-pii.svg)](https://travis-ci.org/deliciousinsights/mongoose-pii)
-
-<!-- Here, once set up, CodeClimate coverage badge -->
+[![CodeClimate Code Coverage score](https://img.shields.io/codeclimate/coverage/deliciousinsights/mongoose-pii.svg)](https://codeclimate.com/github/deliciousinsights/mongoose-pii)
 
 ![Dependencies freshness](https://img.shields.io/david/deliciousinsights/mongoose-pii.svg)
 [![Greenkeeper badge](https://badges.greenkeeper.io/deliciousinsights/mongoose-pii.svg)](https://greenkeeper.io/)
 
-<!-- Here, once set up, CodeClimate quality badge -->
-
+[![CodeClimate maintainability score](https://img.shields.io/codeclimate/maintainability/deliciousinsights/mongoose-pii.svg)](https://codeclimate.com/github/deliciousinsights/mongoose-pii)
 [![Coding style is StandardJS-based](https://img.shields.io/badge/style-standard-brightgreen.svg)](https://standardjs.com/)
 [![Code of Conduct is Contributor Covenant](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-brightgreen.svg)](http://contributor-covenant.org/version/1/4/)
 
