@@ -283,7 +283,7 @@ function processObject(
       processObject(value, { fields, key, isDocument, mode, prefix: fieldPath })
     } else if (value != null) {
       // Null/undefined values need no processing, for the others, let's process
-      processValue(obj, { fields, key, mode, objKey, prefix })
+      processValue(obj, { fieldPath, fields, key, mode, objKey, prefix })
     }
   }
 }
@@ -297,7 +297,8 @@ function processObject(
 // items in the array are to be processed.
 //
 // @see `processObject()`
-function processValue(obj, { fields, key, mode, objKey, prefix }) {
+function processValue(obj, { fieldPath, fields, key, mode, objKey, prefix }) {
+  const value = obj[objKey]
   const parentFieldName = (prefix || '').split('.').slice(-1)[0]
   const fieldMatches =
     fields.includes(fieldPath) ||
