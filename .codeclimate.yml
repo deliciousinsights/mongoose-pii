@@ -1,14 +1,11 @@
 version: '2'
-checks:
-  file-lines:
-    config:
-      # Spec files can run way above 250, and splitting them
-      # artificially breaks the filename mapping logic.
-      threshold: 1000
-  similar-code:
-    config:
-      # Spec files can have a lot of similar literals, but
-      # DRYing them out degrades the readibility of the tests
-      # most of the time, so we’re upping the threshold from 2 to 4
-      # (which admittedly would start being a bit much).
-      threshold: 4
+exclude_patterns:
+  # Raising similar-code check thresholds does not seem to work,
+  # making spec files an enormous source of issues despite their
+  # specific nature. As we can't tweak checks by file pattern,
+  # we have no choice but to disable tests :-(
+  #
+  # Oddly enough, CodeClimate does auto-exclude tests, but hasn't
+  # got the right pattern for JS to cover our `*.spec.js` files…
+  - '**/*.spec.js'
+  - '*.spec.js'
