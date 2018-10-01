@@ -1,3 +1,4 @@
+.codeclimate.yml
 .travis.yml
 coverage
 examples
