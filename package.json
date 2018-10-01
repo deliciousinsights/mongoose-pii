@@ -1,6 +1,6 @@
 {
   "name": "mongoose-pii",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Mongoose plugin that lets you transparently cipher stored PII and use securely-hashed passwords.  Helps with security best practices for data storage.",
   "keywords": [
     "mongodb",
