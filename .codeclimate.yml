@@ -5,3 +5,10 @@ checks:
       # Spec files can run way above 250, and splitting them
       # artificially breaks the filename mapping logic.
       threshold: 1000
+  similar-code:
+    config:
+      # Spec files can have a lot of similar literals, but
+      # DRYing them out degrades the readibility of the tests
+      # most of the time, so we’re upping the threshold from 2 to 4
+      # (which admittedly would start being a bit much).
+      threshold: 4
