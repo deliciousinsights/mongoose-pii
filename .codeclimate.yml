@@ -1,4 +1,8 @@
 version: '2'
+checks:
+  method-complexity:
+    config:
+      threshold: 15
 exclude_patterns:
   # Raising similar-code check thresholds does not seem to work,
   # making spec files an enormous source of issues despite their

@@ -282,29 +282,40 @@ function processObject(
       // Dive into objects/arrays, recursively.
       processObject(value, { fields, key, isDocument, mode, prefix: fieldPath })
     } else if (value != null) {
-      // Null/undefined values need no processing, for the others, let's see
-      // if the current field matches our path list.  "Relative" paths
-      // (simple field names) can be matched regardless of depth, hence the
-      // two first condition elements.  Paths that result in arrays mean all
-      // items in the array are to be processed.
-      const parentFieldName = (prefix || '').split('.').slice(-1)[0]
-      const fieldMatches =
-        fields.includes(fieldPath) ||
-        fields.includes(objKey) ||
-        (Array.isArray(obj) &&
-          (fields.includes(prefix) || fields.includes(parentFieldName)))
-
-      if (fieldMatches) {
-        if (mode === 'decipher') {
-          obj[objKey] = decipher(key, value)
-        } else if (mode === 'cipher') {
-          obj[objKey] = cipherValue(key, value)
-        } else {
-          // Has to be `hash`, invalid modes filtered earlier
-          obj[objKey] = hashValue(value)
-        }
-      }
+      // Null/undefined values need no processing, for the others, let's process
+      processValue(obj, { fields, key, mode, objKey, prefix })
     }
+  }
+}
+
+// Just a split of a second-level nontrivial processing in `processObject`,
+// to keep it reasonably simple cognitively.
+//
+// Let’s see if the current field matches our path list.  "Relative" paths
+// (simple field names) can be matched regardless of depth, hence the
+// two first condition elements.  Paths that result in arrays mean all
+// items in the array are to be processed.
+//
+// @see `processObject()`
+function processValue(obj, { fields, key, mode, objKey, prefix }) {
+  const parentFieldName = (prefix || '').split('.').slice(-1)[0]
+  const fieldMatches =
+    fields.includes(fieldPath) ||
+    fields.includes(objKey) ||
+    (Array.isArray(obj) &&
+      (fields.includes(prefix) || fields.includes(parentFieldName)))
+
+  if (!fieldMatches) {
+    return
+  }
+
+  if (mode === 'decipher') {
+    obj[objKey] = decipher(key, value)
+  } else if (mode === 'cipher') {
+    obj[objKey] = cipherValue(key, value)
+  } else {
+    // Has to be `hash`, invalid modes filtered at `processObject()` level
+    obj[objKey] = hashValue(value)
   }
 }
 
