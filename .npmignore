@@ -1,3 +1,5 @@
+.travis.yml
+coverage
 examples
 TODO.md
 *.spec.js
