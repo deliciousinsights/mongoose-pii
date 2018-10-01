@@ -1,0 +1,7 @@
+version: '2'
+checks:
+  file-lines:
+    config:
+      # Spec files can run way above 250, and splitting them
+      # artificially breaks the filename mapping logic.
+      threshold: 1000
