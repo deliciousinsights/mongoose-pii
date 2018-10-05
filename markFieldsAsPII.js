@@ -278,7 +278,7 @@ function processObject(
     const fieldPath =
       objKey[0] === '$' ? prefix : prefix ? `${prefix}.${objKey}` : objKey
     const value = obj[objKey]
-    if (typeof value === 'object') {
+    if (typeof value === 'object' && value != null) {
       // Dive into objects/arrays, recursively.
       processObject(value, { fields, key, isDocument, mode, prefix: fieldPath })
     } else if (value != null) {
@@ -374,7 +374,7 @@ function splitAuthenticationFields({
   prefix = null,
 }) {
   for (const [field, value] of Object.entries(fields)) {
-    if (typeof value === 'object') {
+    if (typeof value === 'object' && value != null) {
       prefix = prefix ? `${prefix}.${field}` : field
       splitAuthenticationFields({
         fields: value,
@@ -425,7 +425,7 @@ function updateObject(obj, path, value) {
 // @see `authenticate()`.
 function walkDocumentPasswordFields(doc = {}, passwords, result = []) {
   for (const [field, value] of Object.entries(passwords)) {
-    if (typeof value === 'object') {
+    if (typeof value === 'object' && value != null) {
       walkDocumentPasswordFields(doc[field], value, result)
     } else {
       result.push([value, doc[field] || ''])
