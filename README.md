@@ -106,7 +106,7 @@ In its default mode, this resolves to either `null`, or the first matching `User
 
 ### Second, convert your existing data
 
-RESUME/FIXME
+FIXME: we'll soon provide helpers for this.
 
 ### Check out our examples!
 
@@ -115,6 +115,11 @@ Find more usage examples in the [`examples`](https://github.com/deliciousinsight
 ----
 
 ## API
+
+Click on the API names (or press Return when they have focus) to toggle API documentation for them.
+
+<details>
+  <summary>markFieldsAsPII</summary>
 
 ### `markFieldsAsPII` (the plugin itself)
 
@@ -169,6 +174,10 @@ schema.plugin(markFieldsAsPII, {
   passwordFields: 'password',
 })
 ```
+</details>
+
+<details>
+  <summary>authenticate(query[, options])</summary>
 
 ### `authenticate(query[, options])`
 
@@ -210,12 +219,14 @@ async function logIn(req, res) {
   }
 }
 ```
-
-----
+</details>
 
 ### Helper functions
 
 These functions are used internally by the plugin but we thought you’d like to have them around. They’re accessible as named exports from the module, just like the plugin.
+
+<details>
+  <summary>checkPassword(clearText, hashed)</summary>
 
 ### `checkPassword(clearText, hashed)`
 
@@ -230,6 +241,11 @@ if (await checkPassword('secret', user.password)) {
   req.flash('warning', 'Your password is a disgrace to privacy')
 }
 ```
+
+</details>
+
+<details>
+  <summary>cipher(key, clearText[, options])</summary>
 
 ### `cipher(key, clearText[, options])`
 
@@ -254,6 +270,10 @@ const key = 'I say: kickass keys rule supreme'
 cipher(key, 'I wish all APIs were this nice')
 // => 'urWDOjnc6EeMv3ASdrerGAn9YIZw3gjO7lve2EzBQ7Qz7uq4b8UsEBRsOCUPfHitA='
 ```
+</details>
+
+<details>
+  <summary>decipher(key, cipherText)</summary>
 
 ### `decipher(key, cipherText)`
 
@@ -275,10 +295,12 @@ decipher(key, 'urWDOjnc6EeMv3ASdrerGAn9YIZw3gjO7lve2EzBQ7Qz7uq4b8UsEBRsOCUPfHitA
 decipher(key, 'ZdZK5sk5P6BGfQJX9qqvFgBUFhR/OXZtv27LaPeCk7kuGrglgq2BS+jSZU1H34GJs=')
 // => 'I wish all APIs were this nice' -- this used a non-derived IV
 ```
+</details>
+
+<details>
+  <summary>hashPassword(clearText[, options])</summary>
 
 ### `hashPassword(clearText[, options])`
-
-<!-- function hashPassword(clearText, { rounds = ROUNDS, sync = false } = {}) -->
 
 Hashes a clear-text password using Bcrypt, with an amount of rounds depending on the current environment (production or otherwise).
 
@@ -318,18 +340,58 @@ function demo(newPass, cb) {
   }
 }
 ```
+</details>
 
 ----
 
 ## Caveats
 
-FIXME deleteMany, desc/query/update object mutation, no key rotation, field maximum size…
+There are a few things to keep in mind when using this plugin.
+
+### You need to cipher `deleteMany()` queries yourself
+
+Mongoose does not yet provide a `deleteMany` hook, which means we’re not auto-ciphering queries used with `deleteMany()`.  If you’re using queries on ciphered fields with it, you currently need to cipher values yourself, using your ciphering key and the helper `cipher()` function we provide (see above), staying in `deriveIV` mode.
+
+### We have to mutate many objects you pass Mongoose methods
+
+Mongoose’s plugin API does not let us return updated objects for documents, queries or update descriptors: all we have to work with are the “original” objects, and we have to mutate these.
+
+This means you should be super-careful to not inadvertently reuse an object you pass Mongoose that contains ciphered or hashed-password fields, as such objects will likely be mangled by the plugin; you’d end up double-ciphering stuff, possibly yell at double-deciphering attempts, too.
+
+### Rotating keys isn’t easy right now
+
+Security best practices would mandate that you rotate ciphering keys as time passes, to further reduce the risk of compromission.  However, using a new key would:
+
+- invalidate deciphering of existing PII in the database
+- incorrectly cipher fields in queries, causing empty results or mismatches
+
+The usual workaround for this is to work with a *keyring*: a small array of keys, most-recent first, where we use the most-recent for writes and all keys for queries.  This is fine for cookie signature scenarios, but it seems to us that this could quickly aggravate queries on the database, and presents challenges in query descriptor mutations or composition to turn otherwise single-value matches into working OR clauses.  If anyone can whip up a good benchmark on this, perf-wise, and a working PR with tests, we’d love it!
+
+### Be wary of your maximum field sizes
+
+In MongoDB, maximum field sizes aren’t very useful…  Still, sometimes you put some maximum length in there, usually based on well-known data formats, such as SSN’s, driver’s license numbers, phone numbers, etc.  Many such fields are PII indeed.
+
+Do remember that ciphering these fields results in 22 characters of IV prefix plus at least 33% more characters than the original data, due to ciphering and Base64 encoding.  Adjust your maximum lengths accordingly, if any.
+
+### Avoid case transforms
+
+We store all our ciphered and hashed data in Base64 format, which is case-sensitive.  It's nice to normalize such data as e-mail addresses to lowercase, but this will break deciphering in a very big way, as this essentially corrupts the ciphertext.  Make sure you don't have such transforms set on your ciphered or hashed fields.
+
+### We need Node 8.6+, unless you Babelize us
+
+We use modern ECMAScript, including REST/Spread properties (“Object spread”).  Although it became an official part of the language in ES2018, it’s been available in Node since v8.6.0. Node 8 is currently (October 2018) the Maintenance LTS version, with Node 10 being the Active LTS, and Node 11 out already.  Our `package.json` contains an `engines.node` field requiring `>= 8.6`, in order for npm to display a warning should you install it on a lower version.
+
+Still, if you absolutely must use a version below it (which means you’re on a version that was, or is imminently going to be, End-Of-Lifed: not a wise choice), you can configure Babel to transpile our source, too.
+
+We’re soon going to dual-publish (using both our native and transpiled source in the module’s package), but still, you should keep your Node runtimes up-to-date, at least with the latest LTS. There’s a lot to gain with this approach.
 
 ----
 
 ## Contributing
 
-FIXME: CONTRIBUTING.md, Contributor Covenant
+You want to help?  That’s awesome!  Check out the details of our [contribution process](./CONTRIBUTING.md) (it’s fairly standard).
+
+This project is run under the [Contributor Covenant](./CODE_OF_CONDUCT.md): make sure you read its dispositions and agree with it before you start contributing.
 
 ## License and copyright
 
