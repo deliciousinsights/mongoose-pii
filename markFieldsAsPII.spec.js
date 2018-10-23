@@ -16,7 +16,6 @@ describe('markFieldsAsPII plugin', () => {
     connection = await mongoose.createConnection(url, {
       autoReconnect: true,
       connectTimeoutMS: 1000,
-      // loggerLevel: 'debug',
       reconnectInterval: 100,
       reconnectTries: Number.MAX_VALUE,
       useNewUrlParser: true,
@@ -555,6 +554,43 @@ describe('markFieldsAsPII plugin', () => {
       })
       expect(users).toMatchObject(user.toJSON())
     })
+  })
+})
+
+describe('pluginWasUsedOn', () => {
+  let markFieldsAsPII
+  let pluginWasUsedOn
+
+  beforeAll(() => {
+    ;({ markFieldsAsPII, pluginWasUsedOn } = require('./markFieldsAsPII'))
+  })
+
+  it('should return true on Schemas that use the plugin', () => {
+    const schema = new mongoose.Schema({ name: String, password: String })
+    schema.plugin(markFieldsAsPII, { passwordFields: 'password' })
+
+    expect(pluginWasUsedOn(schema)).toBeTruthy()
+  })
+
+  it('should return true on Models whose schemas use the plugin', () => {
+    const schema = new mongoose.Schema({ name: String, password: String })
+    schema.plugin(markFieldsAsPII, { passwordFields: 'password' })
+    const Model = mongoose.model('UsingPlugin', schema)
+
+    expect(pluginWasUsedOn(Model)).toBeTruthy()
+  })
+
+  it('should return false on Schemas that don’t use the plugin', () => {
+    const schema = new mongoose.Schema({ name: String })
+
+    expect(pluginWasUsedOn(schema)).toBeFalsy()
+  })
+
+  it('should return false on Models whose schemas don’t use the plugin', () => {
+    const schema = new mongoose.Schema({ name: String })
+    const Model = mongoose.model('NotUsingPlugin', schema)
+
+    expect(pluginWasUsedOn(Model)).toBeFalsy()
   })
 })
 

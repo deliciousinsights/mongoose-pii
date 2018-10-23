@@ -35,7 +35,7 @@ function markFieldsAsPII(schema, { fields, key, passwordFields } = {}) {
     )
   }
 
-  settings[schema] = { fields, key, passwordFields }
+  settings.set(schema, { fields, key, passwordFields })
 
   if (fields.length > 0) {
     schema.pre('insertMany', cipherDocumentFields)
@@ -62,7 +62,7 @@ function markFieldsAsPII(schema, { fields, key, passwordFields } = {}) {
 // Ciphers document fields pre-insert and pre-save, so they're stored
 // ciphered in the database.
 function cipherDocumentFields(next, docs) {
-  const { fields, key } = settings[this.schema]
+  const { fields, key } = settings.get(this.schema)
 
   // If we're on `Model.insertMany`, `this` is a Model and `docs` is an Array.
   // Otherwise we're on `Document#save/Model.create`, `docs` is missing and
@@ -94,7 +94,7 @@ function cipherDocumentFields(next, docs) {
 // at first save through the `cipherDocumentFields` hook above.
 function cipherQueryFields(next) {
   // this is the Query -- we're on finder methods
-  const { fields, key } = settings[this.schema]
+  const { fields, key } = settings.get(this.schema)
 
   const query = this.getQuery()
   processObject(query, { fields, key, mode: 'cipher' })
@@ -115,7 +115,7 @@ function decipherDocumentFields(docs) {
   // If we're on `Model.insertMany`, `this` is a Model and `docs` is an Array.
   // Otherwise we're on `Document#save/Model.create`, `docs` is a single
   // Document and is `this` as well.
-  const { fields, key } = settings[this.schema]
+  const { fields, key } = settings.get(this.schema)
 
   if (!Array.isArray(docs)) {
     docs = [docs]
@@ -127,7 +127,7 @@ function decipherDocumentFields(docs) {
 // Hashes document password fields pre-insert and pre-save,
 // so they're stored hashed in the database.
 function hashDocumentPasswords(next, docs) {
-  const { passwordFields } = settings[this.schema]
+  const { passwordFields } = settings.get(this.schema)
 
   // If we're on `Model.insertMany`, `this` is a Model and `docs` is an Array.
   // Otherwise we're on `Document#save/Model.create`, `docs` is missing and
@@ -164,7 +164,7 @@ function hashDocumentPasswords(next, docs) {
 //         false, it will always return an array of matching
 //         documents, potentially empty.
 async function authenticate(fields, { single = true } = {}) {
-  const { passwordFields } = settings[this.schema]
+  const { passwordFields } = settings.get(this.schema)
 
   const { query, passwords } = splitAuthenticationFields({
     fields,
@@ -189,6 +189,13 @@ async function authenticate(fields, { single = true } = {}) {
   }
 
   return single ? null : result
+}
+
+// An internal-use, exported function that our convert utility
+// can use to ensure this plugin was registered on a given model or schema.
+function pluginWasUsedOn(modelOrSchema) {
+  const schema = modelOrSchema.schema || modelOrSchema
+  return settings.has(schema)
 }
 
 // Internal helper functions
@@ -443,4 +450,5 @@ module.exports = {
     walkDocumentPasswordFields,
   },
   markFieldsAsPII,
+  pluginWasUsedOn,
 }
