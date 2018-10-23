@@ -106,7 +106,11 @@ In its default mode, this resolves to either `null`, or the first matching `User
 
 ### Second, convert your existing data
 
-FIXME: we'll soon provide helpers for this.
+You’re likely to have a ton of existing, unprotected data in your collections already.  However, the moment you register the plugin with your Mongoose schemas, loading data starts to break down because it expected hashed passwords for authentication and ciphered PII in the database!
+
+It would be way too detrimental to loading performance to check for the ciphered state of data in the raw loaded document (not to mention heuristics are not universal there), so instead, we provide a helper API for you to convert your existing collections once you registered the plugin with the proper options.
+
+See the `convertDataForModel()` API below for details.
 
 ### Check out our examples!
 
@@ -340,6 +344,59 @@ function demo(newPass, cb) {
   }
 }
 ```
+</details>
+
+### Data migration utility
+
+<details>
+  <summary>convertDataForModel(Model[, emitter])</summary>
+
+### `convertDataForModel(Model[, emitter])`
+
+In order to facilitate the initial migration of your collections’ raw data, we provide a helper API for you to convert your existing collections once you registered the plugin with the proper options.
+
+Here’s how to go about it, for a given schema:
+
+1. Register the plugin, with all relevant options, on the schema
+2. Write a small script that will establish the underlying connection (if your code doesn't do that automatically on model loading, for instance).
+
+This returns a promise, so if you’re into `async` / `await` (and you should!), go right ahead.
+
+As this is likely to be run just once in the terminal, it outputs by default, on `process.stderr`, a simple progress bar (that tops at 100 chars wide but can be narrower if your terminal mandates it).
+
+If you prefer to control the output, you can pass your own event emitter, as shown in the second example below.
+
+**Example uses**
+
+Interactively in the terminal, with a dynamic progress bar:
+
+```js
+const YourModel = require('./path-to-your-model')
+const { convertDataForModel } = require('mongoose-pii/convert')
+
+convertDataForModel(YourModel)
+  .then((convertedCount) => console.log(`Converted ${convertedCount} documents`))
+  .catch((error) => console.error('Failed during the conversion:', error))
+```
+
+Using our own custom event emitter for reporting:
+
+```js
+const EventEmitter = require('events')
+const YourModel = require('./path-to-your-model')
+const { convertDataForModel } = require('mongoose-pii/convert')
+
+const emitter = new EventEmitter()
+// This is fired for every successfully-converted Document (1-n)
+emitter.on('docs', (convertedCount) => { /* … */ })
+// This is fired every time the (rounded-down) process completion percentage changes (1-100)
+emitter.on('progress', (updatedPercentage) => { /* … */ })
+
+convertDataForModel(YourModel, emitter)
+  .then((convertedCount) => console.log(`Converted ${convertedCount} documents`))
+  .catch((error) => console.error('Failed during the conversion:', error))
+```
+
 </details>
 
 ----
