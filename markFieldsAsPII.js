@@ -194,8 +194,7 @@ async function authenticate(fields, { single = true } = {}) {
 // An internal-use, exported function that our convert utility
 // can use to ensure this plugin was registered on a given model or schema.
 function pluginWasUsedOn(modelOrSchema) {
-  const schema = modelOrSchema.schema || modelOrSchema
-  return settings.has(schema)
+  return settings.has(modelOrSchema.schema || modelOrSchema)
 }
 
 // Internal helper functions
