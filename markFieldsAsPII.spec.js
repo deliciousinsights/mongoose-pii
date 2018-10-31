@@ -301,7 +301,7 @@ describe('markFieldsAsPII plugin', () => {
         role: 'countable',
       }
       const descriptors = [1, 2, 3].map(() => ({ ...attrs }))
-      const { ops: docs } = await userCollection.insertMany(descriptors)
+      await userCollection.insertMany(descriptors)
 
       expect(
         await User.count({ email: 'foo@bar.com', role: 'countable' })

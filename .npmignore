@@ -1,5 +1,9 @@
 .codeclimate.yml
+.editorconfig
 .travis.yml
+.vscode
+cc-test-reporter
+commitlint.config.js
 coverage
 examples
 TODO.md

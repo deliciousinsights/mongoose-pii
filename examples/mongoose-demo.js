@@ -9,8 +9,10 @@ mongoose.connect(
 
 demoScenario()
 
+const email = 'christophe@delicious-insights.com'
+
 async function demoFinders(User) {
-  const id = (await User.find()).id
+  const id = (await User.find().limit(1))[0].id
 
   // 7. findById / findOne, including a ciphered query
   let fetchedUser = await User.findById(id)
@@ -32,7 +34,6 @@ async function demoFinders(User) {
 }
 
 async function demoInsertions(User) {
-  const email = 'christophe@delicious-insights.com'
   const attrs = {
     address: '83 av. Philippe-Auguste 75011 Paris',
     email,
@@ -100,7 +101,7 @@ async function setup() {
   const User = prepareModel()
 
   if (process.stdout.isTTY) {
-    process.stdout.write('\033[2J\033[H')
+    process.stdout.write('\x1b[2J\x1b[H')
   }
   await User.deleteMany({})
 
