@@ -27,11 +27,21 @@ Getting started is the usual stuff:
 3. `npm install`
 4. Create a well-named branch for your work (`git checkout -b your-branch-name`)
 
+## Coding style
+
+In accordance with the usual “Your House, Your Rules” approach, contributions are expected to honor the codebase’s coding style. To facilitate this, the repo comes with:
+
+- Detailed VS Code workspace settings (in `.vscode/settings.json`), including whitespace management and [ESLint](https://eslint.org/) / [Prettier](https://prettier.io/) extension settings.
+- Recommended VS Code extensions (in `.vscode/extensions.json`), including ESLint and Prettier. **If you use other JS linters / beautifiers, make sure you disable them for this workspace** to avoid conflicts.
+- [EditorConfig](https://EditorConfig.org) settings for the larger use-case (in `.editorconfig`)
+- A `npm run lint` script you can use to ensure consistency.
+
 ## Testing
 
 The project files all have full tests. We use [Jest](https://jestjs.io/) for this, and have two npm scripts ready:
 
-- `npm test` does a one-pass; it includes full test coverage reporting.
+- `npm test` runs both the linter and the tests (`test:core`)
+- `npm run test:core` does a one-pass; it includes full test coverage reporting.
 - `npm run test:watch` runs a developer test watch; this is what you should use when working on your code and tests.
 
 The test suite uses the amazing [MongoDB Memory Server](https://www.npmjs.com/package/mongodb-memory-server) package, which means you won't need to have a running MongoDB server with a test database to run our tests! How cool is that!

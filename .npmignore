@@ -1,5 +1,7 @@
 .codeclimate.yml
+.editorconfig
 .travis.yml
+.vscode
 coverage
 examples
 TODO.md
