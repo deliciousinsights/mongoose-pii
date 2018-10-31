@@ -44,7 +44,7 @@
     "url": "https://github.com/deliciousinsights/mongoose-pii/issues"
   },
   "author": "Christophe Porteneuve <christophe@delicious-insights.com> (https://delicious-insights.com/)",
-  "homepage": "https://github.com/deliciousinsights/mongoose-pii#readme",
+  "homepage": "https://deliciousinsights.github.io/mongoose-pii",
   "license": "MIT",
   "eslintConfig": {
     "extends": [
