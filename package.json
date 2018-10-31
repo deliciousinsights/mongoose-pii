@@ -21,8 +21,10 @@
     "why-no-deprecation-in-test": "Because we’re intentionally testing deprecated Mongo/Mongoose APIs are still hooked onto (count, findAndModify, update…)"
   },
   "scripts": {
-    "test": "npx --node-arg --no-deprecation jest",
-    "test:watch": "npm test -- --watch"
+    "lint": "eslint *.js util/*.js examples/*.js",
+    "test": "npm run lint && npm run test:core",
+    "test:core": "npx --node-arg --no-deprecation jest",
+    "test:watch": "npm run test:core -- --watch"
   },
   "directories": {
     "example": "examples"
@@ -37,6 +39,33 @@
   "author": "Christophe Porteneuve <christophe@delicious-insights.com> (https://delicious-insights.com/)",
   "homepage": "https://github.com/deliciousinsights/mongoose-pii#readme",
   "license": "MIT",
+  "eslintConfig": {
+    "extends": [
+      "standard",
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "arrowParens": "always",
+          "semi": false,
+          "singleQuote": true,
+          "trailingComma": "es5"
+        }
+      ],
+      "no-irregular-whitespace": 0
+    },
+    "env": {
+      "commonjs": true,
+      "es6": true,
+      "jest": true,
+      "node": true
+    }
+  },
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
@@ -58,8 +87,17 @@
     "mongoose": ">= 4"
   },
   "devDependencies": {
+    "eslint": "^5.7.0",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "jest": "^23.6.0",
     "mongodb-memory-server": "^2.2.0",
-    "mongoose": ">= 4"
+    "mongoose": ">= 4",
+    "prettier": "^1.14.3"
   }
 }
