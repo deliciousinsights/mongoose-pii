@@ -3,7 +3,8 @@
 [![npm version](https://badge.fury.io/js/mongoose-pii.svg)](https://npmjs.com/package/mongoose-pii)
 [![MIT license](https://img.shields.io/github/license/deliciousinsights/mongoose-pii.svg)](https://en.wikipedia.org/wiki/MIT_License)
 [![Travis build](https://img.shields.io/travis/deliciousinsights/mongoose-pii.svg)](https://travis-ci.org/deliciousinsights/mongoose-pii)
-[![CodeClimate Code Coverage score](https://img.shields.io/codeclimate/coverage/deliciousinsights/mongoose-pii.svg)](https://codeclimate.com/github/deliciousinsights/mongoose-pii)
+[![CodeCov Code Coverage score](https://img.shields.io/codecov/c/github/deliciousinsights/mongoose-pii.svg)](https://codecov.io/gh/deliciousinsights/mongoose-pii)
+<!-- [![CodeClimate Code Coverage score](https://img.shields.io/codeclimate/coverage/deliciousinsights/mongoose-pii.svg)](https://codeclimate.com/github/deliciousinsights/mongoose-pii) -->
 
 ![Dependencies freshness](https://img.shields.io/david/deliciousinsights/mongoose-pii.svg)
 [![Greenkeeper badge](https://badges.greenkeeper.io/deliciousinsights/mongoose-pii.svg)](https://greenkeeper.io/)
