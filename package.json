@@ -26,6 +26,12 @@
     "test:core": "npx --node-arg --no-deprecation jest",
     "test:watch": "npm run test:core -- --watch"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
+  },
   "directories": {
     "example": "examples"
   },
@@ -95,6 +101,7 @@
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "husky": "^1.1.2",
     "jest": "^23.6.0",
     "mongodb-memory-server": "^2.2.0",
     "mongoose": ">= 4",
