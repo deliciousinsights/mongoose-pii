@@ -2,6 +2,7 @@
 .editorconfig
 .travis.yml
 .vscode
+_config.yml
 cc-test-reporter
 commitlint.config.js
 coverage
