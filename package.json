@@ -108,7 +108,7 @@
     "husky": "^1.1.2",
     "jest": "^23.6.0",
     "mongodb-memory-server": "^3.0.0",
-    "mongoose": "^5.3.8",
+    "mongoose": "^5.4.15",
     "prettier": "^1.14.3"
   }
 }
