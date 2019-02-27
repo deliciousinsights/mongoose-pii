@@ -2,10 +2,10 @@ const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { markFieldsAsPII } = require('../index')
 
-mongoose.connect(
-  'mongodb://localhost:27017/demos',
-  { connectTimeoutMS: 1000, useNewUrlParser: true }
-)
+mongoose.connect('mongodb://localhost:27017/demos', {
+  connectTimeoutMS: 1000,
+  useNewUrlParser: true,
+})
 
 demoScenario()
 
