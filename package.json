@@ -95,7 +95,7 @@
     "mongoose": ">= 4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.5.2",
+    "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^7.5.0",
     "eslint": "^5.14.1",
     "eslint-config-prettier": "^4.1.0",
