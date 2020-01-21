@@ -51,7 +51,10 @@ async function demoInsertions(User) {
   console.log('Saved user:', user2.toJSON())
   // 3. insertMany
   const users = await User.insertMany([attrs, attrs])
-  console.log('insertMany users:', users.map((u) => u.toJSON()))
+  console.log(
+    'insertMany users:',
+    users.map((u) => u.toJSON())
+  )
 }
 
 async function demoScenario() {

@@ -1,4 +1,3 @@
-const { Cursor } = require('mongodb')
 const MongoDBMemoryServer = require('mongodb-memory-server').default
 const mongoose = require('mongoose')
 
@@ -16,11 +15,9 @@ describe('convert() utility', () => {
     server = new MongoDBMemoryServer()
     const url = await server.getConnectionString()
     connection = await mongoose.createConnection(url, {
-      autoReconnect: true,
       connectTimeoutMS: 1000,
-      reconnectInterval: 100,
-      reconnectTries: Number.MAX_VALUE,
       useNewUrlParser: true,
+      useUnifiedTopology: true,
     })
   })
 
@@ -75,10 +72,9 @@ describe('convert() utility', () => {
 
       await expect(convertDataForModel(Model)).resolves.toEqual(DOCS.length)
 
-      for (const [
-        index,
-        { email },
-      ] of (await Model.collection.find().toArray()).entries()) {
+      for (const [index, { email }] of (
+        await Model.collection.find().toArray()
+      ).entries()) {
         // It should look like a ciphertext -- this early check avoid cryptic errors
         // on deciphering later.
         expect(email).toMatch(/^[A-Za-z0-9+/]{25,}={0,2}$/)
@@ -95,10 +91,9 @@ describe('convert() utility', () => {
 
       await expect(convertDataForModel(Model)).resolves.toEqual(DOCS.length)
 
-      for (const [
-        index,
-        { password },
-      ] of (await Model.collection.find().toArray()).entries()) {
+      for (const [index, { password }] of (
+        await Model.collection.find().toArray()
+      ).entries()) {
         // It should look like a hashed Bcrypt -- this early check avoid cryptic errors
         // on checkPassword later.
         expect(password).toMatch(/^\$2a\$\d{2}\$/)
@@ -219,26 +214,5 @@ describe('convert() utility', () => {
         })
       })
     })
-  })
-
-  it('should report errors, if any', async () => {
-    const schema = new mongoose.Schema({ name: String, password: String })
-    schema.plugin(markFieldsAsPII, { passwordFields: 'password' })
-    const Model = connection.model('Erroneous', schema)
-    await Model.collection.insertOne({ name: 'John', password: 'secret' })
-
-    const oldNext = Cursor.prototype.next
-
-    try {
-      // When an error come up, throw it!
-      Cursor.prototype.next = jest
-        .fn(() => Promise.reject(new Error('Oops')))
-        .mockName('next')
-      await expect(convertDataForModel(Model)).rejects.toThrow('Oops')
-    } finally {
-      Cursor.prototype.next = oldNext
-    }
-
-    await expect(convertDataForModel(Model)).resolves.toEqual(1)
   })
 })

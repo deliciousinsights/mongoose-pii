@@ -1,6 +1,6 @@
 {
   "name": "mongoose-pii",
-  "version": "1.2.3",
+  "version": "2.0.0",
   "description": "A Mongoose plugin that lets you transparently cipher stored PII and use securely-hashed passwords.  Helps with security best practices for data storage.",
   "keywords": [
     "mongodb",
@@ -55,15 +55,6 @@
       "prettier"
     ],
     "rules": {
-      "prettier/prettier": [
-        "error",
-        {
-          "arrowParens": "always",
-          "semi": false,
-          "singleQuote": true,
-          "trailingComma": "es5"
-        }
-      ],
       "no-irregular-whitespace": 0
     },
     "env": {
@@ -72,6 +63,13 @@
       "jest": true,
       "node": true
     }
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "jsxSingleQuote": true,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
   },
   "jest": {
     "collectCoverage": true,
@@ -95,20 +93,20 @@
     "mongoose": ">= 4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.5.2",
-    "@commitlint/config-conventional": "^7.5.0",
-    "eslint": "^5.14.1",
-    "eslint-config-prettier": "^4.1.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-prettier": "^3.0.1",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "husky": "^1.3.1",
-    "jest": "^24.1.0",
-    "mongodb-memory-server": "^4.0.0",
-    "mongoose": "^5.4.16",
-    "prettier": "^1.16.4"
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.0.10",
+    "jest": "^24.9.0",
+    "mongodb-memory-server": "^6.2.3",
+    "mongoose": "^5.8.9",
+    "prettier": "^1.19.1"
   }
 }

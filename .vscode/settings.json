@@ -8,8 +8,8 @@
     "**/.DS_Store": true,
     "**/node_modules": true
   },
-  "prettier.eslintIntegration": true,
   "prettier.arrowParens": "always",
+  "prettier.jsxSingleQuote": true,
   "prettier.singleQuote": true,
   "prettier.trailingComma": "es5",
   "prettier.semi": false,

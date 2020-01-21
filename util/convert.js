@@ -4,9 +4,7 @@ function checkPluginWasUsed(Model) {
   if (!pluginWasUsedOn(Model)) {
     throw new Error(
       [
-        `${
-          Model.modelName
-        }’s schema did not register the markFieldsAsPII plugin.`,
+        `${Model.modelName}’s schema did not register the markFieldsAsPII plugin.`,
         'Make sure your model’s schema registers it, for instance:',
         'mySchema.plugin(markFieldsAsPII, { /* your options here */ })',
       ].join('\n\n')
