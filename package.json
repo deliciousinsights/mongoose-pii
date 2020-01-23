@@ -103,7 +103,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "husky": "^4.0.10",
+    "husky": "^4.2.1",
     "jest": "^24.9.0",
     "mongodb-memory-server": "^6.2.3",
     "mongoose": "^5.8.9",
