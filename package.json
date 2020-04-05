@@ -107,6 +107,6 @@
     "jest": "^24.9.0",
     "mongodb-memory-server": "^6.2.3",
     "mongoose": "^5.8.9",
-    "prettier": "^1.19.1"
+    "prettier": "^2.0.3"
   }
 }
